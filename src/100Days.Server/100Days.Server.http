@@ -1,0 +1,6 @@
+@_100Days.Server_HostAddress = http://localhost:5237
+
+GET {{_100Days.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
