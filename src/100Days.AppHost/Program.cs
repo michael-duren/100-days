@@ -1,28 +1,27 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 var postgres = builder.AddPostgres("postgres");
-
-// takes the name of the resource this will be used for connection strings and connecting
-// this component to others, and an optional name for the database, defaults to the resource name
-// if none is specified
 var postgresdb = postgres.AddDatabase("postgresdb", "100days");
 
-var authdb = builder
-    .AddPostgres("auth")
-    .AddDatabase("authdb", "100days_auth");
+var authdb = builder.AddPostgres("auth").AddDatabase("authdb", "100days_auth");
 
-var authService = builder.AddProject<Projects.Auth_Api>("auth-api")
-    .WithReference(authdb);
+var authService = builder.AddProject<Projects.Auth_Api>("authapi").WithReference(authdb);
 
-var api = builder.AddProject<Projects._100Days_Server>("api")
+builder.AddProject<Projects.Auth_MigrationService>("auth-migration").WithReference(authdb);
+
+var api = builder
+    .AddProject<Projects._100Days_Server>("api")
     .WithReference(postgresdb)
     .WithExternalHttpEndpoints();
 
-builder.AddNpmApp("react", "../100days.client", "dev")
+builder
+    .AddNpmApp("react", "../100days.client", "dev")
     .WithReference(api)
+    .WithReference(authService)
     .WithEnvironment("BROWSER", "none")
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
 
 builder.Build().Run();
+

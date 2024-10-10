@@ -1,6 +1,13 @@
 import { Button } from "../ui/button";
+import { useEffect } from 'react';
 
 export default function HomePage() {
+  useEffect(() => {
+    fetch(`/api/hello`)
+        .then(response => response.json())
+        .then(data => console.log(data));
+  }, []);
+  
   return (
     <div className="flex flex-col">
       <div className="flex mb-32 items-center justify-self-center flex-col gap-4">
