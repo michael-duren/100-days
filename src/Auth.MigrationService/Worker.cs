@@ -22,9 +22,11 @@ public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime h
         {
             using var scope = serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AuthContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
             await EnsureDatabaseAsync(dbContext, cancellationToken);
             await RunMigrationAsync(dbContext, cancellationToken);
+            await CreateTestUserAsync(userManager);
             // await SeedDataAsync(dbContext, cancellationToken);
         }
         catch (Exception ex)
@@ -64,26 +66,14 @@ public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime h
         });
     }
 
-    // private static async Task SeedDataAsync(AuthContext dbContext, CancellationToken cancellationToken)
-    // {
-    //     var passwordHasher = new PasswordHasher<AppUser>();
-    //     var passwordHash = passwordHasher.HashPassword(null, "Pa$$w0rd!");
-    //     AppUser user = new()
-    //     {
-    //         UserName = "MichaelDuren",
-    //         Email = "michael@michael.com",
-    //         EmailConfirmed = true,
-    //         PasswordHash = passwordHash,
-    //     };
-    //
-    //     var strategy = dbContext.Database.CreateExecutionStrategy();
-    //     await strategy.ExecuteAsync(async () =>
-    //     {
-    //         // Seed the database
-    //         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-    //         await dbContext.Users.AddAsync(user, cancellationToken);
-    //         await dbContext.SaveChangesAsync(cancellationToken);
-    //         await transaction.CommitAsync(cancellationToken);
-    //     });
-    // }
+    private static async Task CreateTestUserAsync(UserManager<AppUser> userManager)
+    {
+        var user = new AppUser
+        {
+            UserName = "test",
+            Email = "michael@test.com",
+        };
+
+        await userManager.CreateAsync(user, "Pa$$w0rd");
+    }
 }
