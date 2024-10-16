@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Auth.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -24,7 +25,7 @@ public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime h
 
             await EnsureDatabaseAsync(dbContext, cancellationToken);
             await RunMigrationAsync(dbContext, cancellationToken);
-            await SeedDataAsync(dbContext, cancellationToken);
+            // await SeedDataAsync(dbContext, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -63,24 +64,26 @@ public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime h
         });
     }
 
-    private static async Task SeedDataAsync(AuthContext dbContext, CancellationToken cancellationToken)
-    {
-        AppUser user = new()
-        {
-            UserName = "MichaelDuren",
-            Email = "michael@michael.com",
-            EmailConfirmed = true,
-            PasswordHash = "AQAAAAEAACcQAAAAEJ9"
-        };
-
-        var strategy = dbContext.Database.CreateExecutionStrategy();
-        await strategy.ExecuteAsync(async () =>
-        {
-            // Seed the database
-            await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-            await dbContext.Users.AddAsync(user, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
-        });
-    }
+    // private static async Task SeedDataAsync(AuthContext dbContext, CancellationToken cancellationToken)
+    // {
+    //     var passwordHasher = new PasswordHasher<AppUser>();
+    //     var passwordHash = passwordHasher.HashPassword(null, "Pa$$w0rd!");
+    //     AppUser user = new()
+    //     {
+    //         UserName = "MichaelDuren",
+    //         Email = "michael@michael.com",
+    //         EmailConfirmed = true,
+    //         PasswordHash = passwordHash,
+    //     };
+    //
+    //     var strategy = dbContext.Database.CreateExecutionStrategy();
+    //     await strategy.ExecuteAsync(async () =>
+    //     {
+    //         // Seed the database
+    //         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+    //         await dbContext.Users.AddAsync(user, cancellationToken);
+    //         await dbContext.SaveChangesAsync(cancellationToken);
+    //         await transaction.CommitAsync(cancellationToken);
+    //     });
+    // }
 }

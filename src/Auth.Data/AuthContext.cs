@@ -10,5 +10,10 @@ public class AuthContext : IdentityDbContext<AppUser>
     {
     }
 
-    public DbSet<AppUser> AppUsers { get; set; } = default!;
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.HasDefaultSchema("identity");
+    }
 }
