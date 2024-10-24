@@ -69,6 +69,7 @@ builder.Services.AddAuthentication(opts =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IJwtCookieService, JwtCookieService>();
 
 builder
     .Services.AddIdentityCore<AppUser>()

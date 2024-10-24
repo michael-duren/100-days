@@ -28,14 +28,17 @@ public static class Endpoints
             .RequireAuthorization();
     }
 
-    private static IResult LogoutUser(HttpContext httpContext)
+    private static IResult LogoutUser(
+        HttpContext httpContext,
+        IJwtCookieService jwtCookieService
+    )
     {
         if (httpContext.User.Identity is not { IsAuthenticated: true })
         {
             return Results.Unauthorized();
         }
 
-        httpContext.Response.Cookies.Delete("jwt");
+        jwtCookieService.RemoveJwtCookie(httpContext);
         return Results.Ok();
     }
 
@@ -43,7 +46,8 @@ public static class Endpoints
         HttpContext httpContext,
         [FromBody] LoginRequest request,
         [FromServices] UserManager<AppUser> userManager,
-        [FromServices] IJwtTokenService jwtTokenService
+        [FromServices] IJwtTokenService jwtTokenService,
+        [FromServices] IJwtCookieService jwtCookieService
     )
     {
         AppUser? user = await userManager.FindByEmailAsync(request.Email);
@@ -58,16 +62,8 @@ public static class Endpoints
             return Results.Unauthorized();
         }
 
-        // Set the token in a HttpOnly cookie
-        CookieOptions cookieOptions = new()
-        {
-            HttpOnly = true, // Prevent JavaScript access (helps protect against XSS)
-            Secure = false, // Only send the cookie over HTTPS
-            SameSite = SameSiteMode.None, // Only send the cookie in first-party contexts
-            Expires = DateTime.UtcNow.AddDays(1)
-        };
-
         string token = await jwtTokenService.GenerateJwtTokenAsync(user);
+        jwtCookieService.SetJwtCookie(httpContext, token);
         UserDto userDto = new()
         {
             UserId = user.Id,
@@ -76,8 +72,6 @@ public static class Endpoints
         };
 
 
-        httpContext.Response.Cookies.Append("jwt", token, cookieOptions);
-
         return Results.Ok(userDto);
     }
 
@@ -85,7 +79,8 @@ public static class Endpoints
         HttpContext httpContext,
         [FromBody] RegisterRequest request,
         [FromServices] UserManager<AppUser> userManager,
-        [FromServices] IJwtTokenService jwtTokenService
+        [FromServices] IJwtTokenService jwtTokenService,
+        [FromServices] IJwtCookieService jwtCookieService
     )
     {
         AppUser? existingUser = await userManager.FindByEmailAsync(request.Email);
@@ -107,16 +102,7 @@ public static class Endpoints
         }
 
         string token = await jwtTokenService.GenerateJwtTokenAsync(user);
-
-        // TODO: Create cookie service
-        CookieOptions cookieOptions = new()
-        {
-            HttpOnly = true, // Prevent JavaScript access (helps protect against XSS)
-            Secure = true, // Only send the cookie over HTTPS
-            SameSite = SameSiteMode.Strict, // Only send the cookie in first-party contexts
-            Expires = DateTime.UtcNow.AddDays(1)
-        };
-        httpContext.Response.Cookies.Append("jwt", token, cookieOptions);
+        jwtCookieService.SetJwtCookie(httpContext, token);
 
         var userDto = new UserDto
         {
