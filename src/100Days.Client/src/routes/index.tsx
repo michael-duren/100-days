@@ -13,7 +13,6 @@ export default function HomePage() {
       .then((data) => console.log(data));
   }, []);
 
-  console.log("hello fwiend");
   return (
     <div className="flex flex-col">
       <div className="flex mb-32 items-center justify-self-center flex-col gap-4">
@@ -42,7 +41,7 @@ export default function HomePage() {
               learn new things, become healthier, stronger, and happier.
             </p>
             <div className="mt-8 flex justify-end gap-2">
-              <Link to="/">
+              <Link to="/register">
                 <Button size={"lg"}>Get Started</Button>
               </Link>
               <Link to="/about">

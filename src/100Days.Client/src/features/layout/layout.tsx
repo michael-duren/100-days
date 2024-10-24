@@ -27,7 +27,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <ModeToggle />
         </div>
       </header>
-      <main className="mx-auto max-w-screen-lg h-full">{children}</main>
+      <main className="w-full mx-auto max-w-screen-lg h-full">{children}</main>
       <footer className="bg-cyan-700">
         <div className="text-center p-4"></div>
       </footer>
