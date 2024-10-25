@@ -4,6 +4,8 @@ import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
 export const Route = createRootRoute({
+  // TODO: Add auth logic
+
   component: () => (
     <>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

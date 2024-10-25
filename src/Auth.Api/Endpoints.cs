@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Auth.Api.Models;
 using Auth.Api.Services;
 using Auth.Data;
@@ -11,27 +12,53 @@ public static class Endpoints
 {
     public static void AddAuthEndpoints(this WebApplication app)
     {
-        app.MapPost("/api/auth/login", LoginUserAsync)
+        var authEndoints = app.MapGroup("/api/auth");
+
+        authEndoints
+            .MapPost("/login", LoginUserAsync)
             .Produces<UserDto>()
             .Produces(401)
             .Produces(404)
             .Produces(500)
             .Accepts<LoginRequest>("application/json");
 
-        app.MapPost("/api/auth/register", RegisterUserAsync)
+        authEndoints
+            .MapPost("/register", RegisterUserAsync)
             .Produces<UserDto>()
             .Produces(400)
             .Produces(409)
             .Accepts<Microsoft.AspNetCore.Identity.Data.RegisterRequest>("application/json");
 
-        app.MapPost("/api/auth/logout", LogoutUser)
+        authEndoints
+            .MapPost("/logout", LogoutUser)
+            .Produces(200)
+            .Produces(401)
+            .RequireAuthorization();
+
+        authEndoints
+            .MapGet("/me", GetCurrentUser)
+            .Produces<UserDto>()
+            .Produces(401)
             .RequireAuthorization();
     }
 
-    private static IResult LogoutUser(
-        HttpContext httpContext,
-        IJwtCookieService jwtCookieService
-    )
+    private static IResult GetCurrentUser(HttpContext httpContext)
+    {
+        if (httpContext.User.Identity is not { IsAuthenticated: true })
+        {
+            return Results.Unauthorized();
+        }
+
+        var userDto = new UserDto
+        {
+            UserId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "",
+            UserName = httpContext.User.FindFirstValue(ClaimTypes.Name),
+            Email = httpContext.User.FindFirstValue(ClaimTypes.Email),
+        };
+        return Results.Ok(userDto);
+    }
+
+    private static IResult LogoutUser(HttpContext httpContext, IJwtCookieService jwtCookieService)
     {
         if (httpContext.User.Identity is not { IsAuthenticated: true })
         {
@@ -53,24 +80,24 @@ public static class Endpoints
         AppUser? user = await userManager.FindByEmailAsync(request.Email);
         if (user is null)
         {
-            return Results.NotFound();
+            return Results.Json(new { message = "User not found" }, statusCode: 404);
         }
 
         bool result = await userManager.CheckPasswordAsync(user, request.Password);
         if (!result)
         {
-            return Results.Unauthorized();
+            return Results.Json(new { message = "Invalid password" }, statusCode: 401);
         }
 
         string token = await jwtTokenService.GenerateJwtTokenAsync(user);
         jwtCookieService.SetJwtCookie(httpContext, token);
-        UserDto userDto = new()
-        {
-            UserId = user.Id,
-            UserName = user.UserName,
-            Email = user.Email
-        };
-
+        UserDto userDto =
+            new()
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+            };
 
         return Results.Ok(userDto);
     }
@@ -89,11 +116,7 @@ public static class Endpoints
             return Results.Conflict("User already exists");
         }
 
-        AppUser user = new()
-        {
-            Email = request.Email,
-            UserName = request.UserName
-        };
+        AppUser user = new() { Email = request.Email, UserName = request.UserName };
         IdentityResult result = await userManager.CreateAsync(user, request.Password);
 
         if (!result.Succeeded)
@@ -108,7 +131,7 @@ public static class Endpoints
         {
             UserId = user.Id,
             UserName = user.UserName,
-            Email = user.Email
+            Email = user.Email,
         };
 
         return Results.Ok(userDto);

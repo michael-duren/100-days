@@ -23,3 +23,4 @@ export const registerSchema = z
   });
 
 export type RegisterFormSchema = z.infer<typeof registerSchema>;
+export type RegisterFormRequest = Omit<RegisterFormSchema, "confirmPassword">;

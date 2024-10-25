@@ -9,7 +9,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <header className="flex justify-between items-center mx-8 mt-2 mb-4 border-b-cyan-700 border-b pb-4">
         <Link to="/" className="flex gap-1 items-center">
           <h1 className="text-2xl font-bold italic">100 Days</h1>
-
           <Logo className="w-16 h-16" />
         </Link>
         <div className="flex gap-2">

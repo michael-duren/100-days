@@ -11,6 +11,9 @@ import {
 } from "@/features/ui/form";
 import { Input } from "@/features/ui/input";
 import { Button } from "@/features/ui/button";
+import { useLoginMutation } from "@/api/mutations/auth/useLoginMutation";
+import { useNavigate } from "@tanstack/react-router";
+import { Loader } from "lucide-react";
 
 export default function LoginForm() {
   const form = useForm<LoginFormSchema>({
@@ -20,10 +23,16 @@ export default function LoginForm() {
       password: "",
     },
   });
+  const mutation = useLoginMutation();
+  const navigate = useNavigate();
 
   const onSubmit = (values: LoginFormSchema) => {
-    console.log(values);
+    mutation.mutate(values);
   };
+
+  if (mutation.isSuccess) {
+    navigate({ to: "/user-dashboard" });
+  }
 
   return (
     <Form {...form}>
@@ -55,9 +64,20 @@ export default function LoginForm() {
             </FormItem>
           )}
         />
-        <Button className="w-full" type="submit">
-          Login
+        <Button disabled={mutation.isPending} className="w-full" type="submit">
+          {mutation.isPending ? (
+            <div className="animate-spin">
+              <Loader />
+            </div>
+          ) : (
+            <span>Login</span>
+          )}
         </Button>
+        {mutation.isError && (
+          <div className="text-[0.8rem] font-medium text-destructive">
+            <p>{mutation.error.message}</p>
+          </div>
+        )}
       </form>
     </Form>
   );

@@ -17,12 +17,12 @@ export default defineConfig({
     host: true,
     port: parseInt(process.env.PORT ?? "5173"),
     proxy: {
-      "/api": {
+      "/api/auth": {
         target:
           process.env.services__authapi__https__0 ||
           process.env.services__authapi__http__0,
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        // rewrite: (path) => path.replace(/^\/api/, ""),
         secure: false,
       },
     },
