@@ -15,12 +15,15 @@ public class JwtCookieService : IJwtCookieService
         CookieOptions cookieOptions;
         if (isDevelopment)
         {
-            cookieOptions = new()
+            cookieOptions = new CookieOptions
             {
                 HttpOnly = true, // Prevent JavaScript access (helps protect against XSS)
                 Secure = false, // Only send the cookie over HTTPS
-                SameSite = SameSiteMode.None, // Only send the cookie in first-party contexts
-                Expires = DateTime.UtcNow.AddDays(1)
+                SameSite = SameSiteMode.Lax, // Only send the cookie in first-party contexts
+                Expires = DateTime.UtcNow.AddDays(1),
+                Path = "/",
+                Domain = "localhost",
+                IsEssential = true
             };
         }
         else

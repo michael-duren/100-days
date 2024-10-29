@@ -1,12 +1,32 @@
+// import { useGetUserQuery } from "@/api/queries/auth/useGetUser";
 import Layout from "@/features/layout/layout";
 import { ThemeProvider } from "@/features/theme/theme-provider";
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { AuthStore } from "@/store/useAuthStore";
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+// import { useEffect } from "react";
 
-export const Route = createRootRoute({
-  // TODO: Add auth logic
+interface AuthContext {
+  auth: AuthStore;
+}
 
-  component: () => (
+export const Route = createRootRouteWithContext<AuthContext>()({
+  component: RouteComponent,
+});
+
+function RouteComponent() {
+  // const { user, setUser } = useAuthStore();
+  // const { data: userDto, isLoading, isSuccess, error } = useGetUserQuery(user);
+
+  // useEffect(() => {
+  //   if (isSuccess && userDto.data.userid !== user?.userid && !error) {
+  //     setUser(userDto.data);
+  //   } else {
+  //     setUser(null);
+  //   }
+  // }, [isLoading]);
+
+  return (
     <>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <Layout>
@@ -15,5 +35,5 @@ export const Route = createRootRoute({
       </ThemeProvider>
       <TanStackRouterDevtools />
     </>
-  ),
-});
+  );
+}

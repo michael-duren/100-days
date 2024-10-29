@@ -5,6 +5,9 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import { defineConfig } from "vite";
 import plugin from "@vitejs/plugin-react";
 
+console.log(process.env.services__authapi__https__0);
+console.log(process.env.services__authapi__http__0);
+//
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [plugin(), svgr(), TanStackRouterVite()],
