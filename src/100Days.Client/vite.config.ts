@@ -1,12 +1,16 @@
 import { fileURLToPath, URL } from "node:url";
 import svgr from "vite-plugin-svgr";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 
 import { defineConfig } from "vite";
 import plugin from "@vitejs/plugin-react";
 
+console.log(process.env.services__authapi__https__0);
+console.log(process.env.services__authapi__http__0);
+//
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [plugin(), svgr()],
+  plugins: [plugin(), svgr(), TanStackRouterVite()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -16,12 +20,12 @@ export default defineConfig({
     host: true,
     port: parseInt(process.env.PORT ?? "5173"),
     proxy: {
-      "/api": {
+      "/api/auth": {
         target:
           process.env.services__authapi__https__0 ||
           process.env.services__authapi__http__0,
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        // rewrite: (path) => path.replace(/^\/api/, ""),
         secure: false,
       },
     },

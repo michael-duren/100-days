@@ -7,9 +7,12 @@ builder.AddServiceDefaults();
 
 builder.Services.AddHostedService<Worker>();
 builder.Services.AddOpenTelemetry();
-    // .WithTracing(tracing => tracing.AddSource(Worker.ActivitySourceName));
+// .WithTracing(tracing => tracing.AddSource(Worker.ActivitySourceName));
 
 builder.AddNpgsqlDbContext<AuthContext>("authdb");
+
+builder.Services.AddIdentityCore<AppUser>()
+    .AddEntityFrameworkStores<AuthContext>();
 
 var host = builder.Build();
 host.Run();

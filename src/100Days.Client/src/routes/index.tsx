@@ -1,21 +1,26 @@
-import { Button } from "../ui/button";
-import { useEffect } from 'react';
+import { Button } from "@/features/ui/button";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+
+export const Route = createFileRoute("/")({
+  component: () => HomePage(),
+});
 
 export default function HomePage() {
   useEffect(() => {
     fetch(`/api/hello`)
-        .then(response => response.json())
-        .then(data => console.log(data));
+      .then((response) => response.json())
+      .then((data) => console.log(data));
   }, []);
-  
+
   return (
     <div className="flex flex-col">
       <div className="flex mb-32 items-center justify-self-center flex-col gap-4">
         <h1 className="text-7xl yellowtail-regular">Welcome to 100 Days</h1>
         <div className="">
           <p className="text-2xl">
-            We're glad you're here. We're here to help you change your habbits
-            and acheive your goals 🎉
+            We're glad're here to help you change your habbits and acheive your
+            goals 🎉
           </p>
         </div>
       </div>
@@ -36,10 +41,14 @@ export default function HomePage() {
               learn new things, become healthier, stronger, and happier.
             </p>
             <div className="mt-8 flex justify-end gap-2">
-              <Button size={"lg"}>Get Started</Button>
-              <Button size={"lg"} variant={"secondary"}>
-                About Us
-              </Button>
+              <Link to="/register">
+                <Button size={"lg"}>Get Started</Button>
+              </Link>
+              <Link to="/about">
+                <Button size={"lg"} variant={"secondary"}>
+                  About Us
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

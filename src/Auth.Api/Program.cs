@@ -1,4 +1,11 @@
+using System.Security.Cryptography;
+using Auth.Api;
+using Auth.Api.Extensions;
+using Auth.Api.Services;
 using Auth.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +13,80 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// add the public key for jwt validation
+string publicKey;
+if (builder.Environment.IsDevelopment())
+{
+    publicKey = await File.ReadAllTextAsync(
+        Path.Combine(
+            Environment.CurrentDirectory,
+            "Rsa",
+            "public_key.pem"
+        )
+    );
+}
+else
+{
+    // TODO: Add Azure Key Vault
+    publicKey = "";
+}
+
+using var rsa = RSA.Create();
+
+rsa.ImportFromPem(publicKey.ToCharArray());
+
+builder.Services.AddAuthentication(opts =>
+        {
+            opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }
+    )
+    .AddJwtBearer(opts =>
+    {
+        opts.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var token = context.Request.Cookies["jwt"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    context.Token = token;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
+        opts.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new RsaSecurityKey(rsa)
+        };
+    });
+builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IJwtCookieService, JwtCookieService>();
+
+builder
+    .Services.AddIdentityCore<AppUser>()
+    .AddEntityFrameworkStores<AuthContext>();
+// .AddApiEndpoints(); // add auth endpoints: login, register, etc.
+
+builder.Services.Configure<IdentityOptions>(opts =>
+{
+    opts.Password.RequireDigit = true;
+    opts.Password.RequireLowercase = true;
+    opts.Password.RequireNonAlphanumeric = true;
+    opts.Password.RequireUppercase = true;
+    opts.Password.RequiredLength = 6;
+    opts.Password.RequiredUniqueChars = 1;
+});
+
+// aspire db
 builder.AddNpgsqlDbContext<AuthContext>("authdb");
 
 var app = builder.Build();
@@ -15,35 +96,18 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    // apply ef core migrations
+    app.ApplyMigrations();
 }
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// app.MapIdentityApi<AppUser>();
+app.AddAuthEndpoints();
+app.MapGet("/api/test", () => "SECURED!").RequireAuthorization();
 
-app.MapGet("/hello", () => new { message = "Hello Buddy" });
-
-// app.MapGet("/weatherforecast", () =>
-//     {
-//         var forecast = Enumerable.Range(1, 5).Select(index =>
-//                 new WeatherForecast
-//                 (
-//                     DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-//                     Random.Shared.Next(-20, 55),
-//                     summaries[Random.Shared.Next(summaries.Length)]
-//                 ))
-//             .ToArray();
-//         return forecast;
-//     })
-//     .WithName("GetWeatherForecast")
-//     .WithOpenApi();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

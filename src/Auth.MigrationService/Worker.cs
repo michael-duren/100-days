@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Auth.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -21,10 +22,12 @@ public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime h
         {
             using var scope = serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AuthContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
             await EnsureDatabaseAsync(dbContext, cancellationToken);
             await RunMigrationAsync(dbContext, cancellationToken);
-            await SeedDataAsync(dbContext, cancellationToken);
+            await CreateTestUserAsync(userManager);
+            // await SeedDataAsync(dbContext, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -63,24 +66,14 @@ public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime h
         });
     }
 
-    private static async Task SeedDataAsync(AuthContext dbContext, CancellationToken cancellationToken)
+    private static async Task CreateTestUserAsync(UserManager<AppUser> userManager)
     {
-        AppUser user = new()
+        var user = new AppUser
         {
-            UserName = "MichaelDuren",
-            Email = "michael@michael.com",
-            EmailConfirmed = true,
-            PasswordHash = "AQAAAAEAACcQAAAAEJ9"
+            UserName = "test",
+            Email = "michael@test.com",
         };
 
-        var strategy = dbContext.Database.CreateExecutionStrategy();
-        await strategy.ExecuteAsync(async () =>
-        {
-            // Seed the database
-            await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-            await dbContext.Users.AddAsync(user, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
-        });
+        await userManager.CreateAsync(user, "Pa$$w0rd");
     }
 }

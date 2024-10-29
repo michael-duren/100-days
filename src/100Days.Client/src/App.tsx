@@ -1,22 +1,41 @@
-import Layout from "@/features/layout/layout";
-import { ThemeProvider } from "./features/theme/theme-provider";
-import HomePage from "./features/home/home-page";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { routeTree } from "@/routeTree.gen.ts";
+import { useAuthStore } from "@/store/useAuthStore.ts";
+import { useEffect } from "react";
+import api from "@/api/agent.ts";
 
-function App() {
-  return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <Layout>
-        <HomePage />
-      </Layout>
-    </ThemeProvider>
-  );
+function InnerApp() {
+  const auth = useAuthStore();
+  const authContext = {
+    auth,
+  };
 
-  // async function populateWeatherData() {
-  //     const response = await fetch('api/weatherforecast');
-  //     const data = await response.json();
-  //     setForecasts(data);
-  // }
+  useEffect(() => {
+    // when page initially loads if there is a user
+    // in local storage validate with backend
+    if (auth.user !== null) {
+      auth.setCheckingUser(true);
+      api.Auth.current()
+        .then((data) => {
+          auth.setUser(data.data);
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+        .finally(() => auth.setCheckingUser(false));
+    }
+  }, []);
+
+  return <RouterProvider context={authContext} router={router} />;
 }
 
-export default App;
+const router = createRouter({
+  routeTree,
+  context: {
+    auth: undefined!,
+  },
+});
 
+export default function App() {
+  return <InnerApp />;
+}
