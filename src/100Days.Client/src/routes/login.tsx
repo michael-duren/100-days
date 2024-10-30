@@ -1,8 +1,18 @@
 import LoginForm from "@/features/auth/login/login-form";
 import Photo from "@/assets/polaroid.svg?react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/login")({
+  beforeLoad: ({ context }) => {
+    if (context.auth.user) {
+      throw redirect({
+        to: "/user-dashboard",
+        search: {
+          redirect: location.href,
+        },
+      });
+    }
+  },
   component: () => Login(),
 });
 

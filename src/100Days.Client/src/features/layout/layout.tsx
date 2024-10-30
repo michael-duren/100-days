@@ -5,12 +5,12 @@ import { Loader } from "lucide-react";
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { checkingUser } = useAuthStore();
 
-  console.log("checking user:", checkingUser)
-  
+  console.log("checking user:", checkingUser);
+
   return (
     <div className="h-screen flex flex-col">
       <Header />
-      <main className="w-full mx-auto max-w-screen-lg h-full">
+      <main className="w-full mx-auto max-w-screen-2xl h-full">
         {checkingUser ? (
           <div className={"flex justify-center items-center w-full"}>
             <div className={"animate-spin"}>

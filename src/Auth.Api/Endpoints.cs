@@ -4,6 +4,7 @@ using Auth.Api.Services;
 using Auth.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using LoginRequest = Auth.Api.Models.LoginRequest;
 
 namespace Auth.Api;
@@ -42,18 +43,31 @@ public static class Endpoints
             .RequireAuthorization();
     }
 
-    private static IResult GetCurrentUser(HttpContext httpContext)
+    private static IResult GetCurrentUser(
+        HttpContext httpContext,
+        [FromServices] AuthContext context,
+        [FromServices] JwtCookieService jwtCookieService
+    )
     {
         if (httpContext.User.Identity is not { IsAuthenticated: true })
         {
             return Results.Unauthorized();
         }
 
+        AppUser? user = context.Users
+            .FirstOrDefaultAsync(u => u.Id == httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)).Result;
+
+        if (user is null)
+        {
+            jwtCookieService.RemoveJwtCookie(httpContext);
+            return Results.Unauthorized();
+        }
+
         var userDto = new UserDto
         {
-            UserId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "",
-            UserName = httpContext.User.FindFirstValue(ClaimTypes.Name),
-            Email = httpContext.User.FindFirstValue(ClaimTypes.Email),
+            UserId = user.Id,
+            UserName = user.UserName,
+            Email = user.Email
         };
         return Results.Ok(userDto);
     }

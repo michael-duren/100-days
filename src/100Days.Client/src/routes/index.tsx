@@ -1,8 +1,18 @@
 import { Button } from "@/features/ui/button";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: ({ context }) => {
+    if (context.auth.user) {
+      throw redirect({
+        to: "/user-dashboard",
+        search: {
+          redirect: location.href,
+        },
+      });
+    }
+  },
   component: () => HomePage(),
 });
 

@@ -33,9 +33,11 @@ export default function Header() {
                   Logout
                 </Button>
               </Link>
-              <Button variant={"ghost"}>
-                <User size={20} />
-              </Button>
+              <Link to={"/user-dashboard"}>
+                <Button variant={"ghost"}>
+                  <User size={20} />
+                </Button>
+              </Link>
             </>
           ) : (
             <>
