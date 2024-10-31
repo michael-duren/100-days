@@ -12,7 +12,6 @@ import {
 import { Input } from "@/features/ui/input";
 import { Button } from "@/features/ui/button";
 import { useLoginMutation } from "@/api/mutations/auth/useLoginMutation";
-import { useNavigate } from "@tanstack/react-router";
 import { Loader } from "lucide-react";
 
 export default function LoginForm() {
@@ -24,15 +23,10 @@ export default function LoginForm() {
     },
   });
   const mutation = useLoginMutation();
-  const navigate = useNavigate();
 
   const onSubmit = (values: LoginFormSchema) => {
     mutation.mutate(values);
   };
-
-  if (mutation.isSuccess) {
-    navigate({ to: "/user-dashboard" });
-  }
 
   return (
     <Form {...form}>

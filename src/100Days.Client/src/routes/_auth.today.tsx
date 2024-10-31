@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_auth/user-dashboard")({
-  component: UserDashboard,
+export const Route = createFileRoute("/_auth/today")({
+  component: Today,
 });
 
-function UserDashboard() {
+function Today() {
   return (
     <div>
       <p>User stuff goes here</p>

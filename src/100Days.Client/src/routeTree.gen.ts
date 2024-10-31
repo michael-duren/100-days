@@ -17,7 +17,9 @@ import { Route as RegisterImport } from './routes/register'
 import { Route as LoginImport } from './routes/login'
 import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
-import { Route as AuthUserDashboardImport } from './routes/_auth.user-dashboard'
+import { Route as AuthTodayImport } from './routes/_auth.today'
+import { Route as AuthTimeEstimateImport } from './routes/_auth.time-estimate'
+import { Route as AuthCalendarImport } from './routes/_auth.calendar'
 
 // Create Virtual Routes
 
@@ -50,8 +52,18 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthUserDashboardRoute = AuthUserDashboardImport.update({
-  path: '/user-dashboard',
+const AuthTodayRoute = AuthTodayImport.update({
+  path: '/today',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthTimeEstimateRoute = AuthTimeEstimateImport.update({
+  path: '/time-estimate',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthCalendarRoute = AuthCalendarImport.update({
+  path: '/calendar',
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -94,11 +106,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutLazyImport
       parentRoute: typeof rootRoute
     }
-    '/_auth/user-dashboard': {
-      id: '/_auth/user-dashboard'
-      path: '/user-dashboard'
-      fullPath: '/user-dashboard'
-      preLoaderRoute: typeof AuthUserDashboardImport
+    '/_auth/calendar': {
+      id: '/_auth/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AuthCalendarImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/time-estimate': {
+      id: '/_auth/time-estimate'
+      path: '/time-estimate'
+      fullPath: '/time-estimate'
+      preLoaderRoute: typeof AuthTimeEstimateImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/today': {
+      id: '/_auth/today'
+      path: '/today'
+      fullPath: '/today'
+      preLoaderRoute: typeof AuthTodayImport
       parentRoute: typeof AuthImport
     }
   }
@@ -107,11 +133,15 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AuthRouteChildren {
-  AuthUserDashboardRoute: typeof AuthUserDashboardRoute
+  AuthCalendarRoute: typeof AuthCalendarRoute
+  AuthTimeEstimateRoute: typeof AuthTimeEstimateRoute
+  AuthTodayRoute: typeof AuthTodayRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
-  AuthUserDashboardRoute: AuthUserDashboardRoute,
+  AuthCalendarRoute: AuthCalendarRoute,
+  AuthTimeEstimateRoute: AuthTimeEstimateRoute,
+  AuthTodayRoute: AuthTodayRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -122,7 +152,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
-  '/user-dashboard': typeof AuthUserDashboardRoute
+  '/calendar': typeof AuthCalendarRoute
+  '/time-estimate': typeof AuthTimeEstimateRoute
+  '/today': typeof AuthTodayRoute
 }
 
 export interface FileRoutesByTo {
@@ -131,7 +163,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
-  '/user-dashboard': typeof AuthUserDashboardRoute
+  '/calendar': typeof AuthCalendarRoute
+  '/time-estimate': typeof AuthTimeEstimateRoute
+  '/today': typeof AuthTodayRoute
 }
 
 export interface FileRoutesById {
@@ -141,14 +175,32 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
-  '/_auth/user-dashboard': typeof AuthUserDashboardRoute
+  '/_auth/calendar': typeof AuthCalendarRoute
+  '/_auth/time-estimate': typeof AuthTimeEstimateRoute
+  '/_auth/today': typeof AuthTodayRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/login' | '/register' | '/about' | '/user-dashboard'
+  fullPaths:
+    | '/'
+    | ''
+    | '/login'
+    | '/register'
+    | '/about'
+    | '/calendar'
+    | '/time-estimate'
+    | '/today'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/login' | '/register' | '/about' | '/user-dashboard'
+  to:
+    | '/'
+    | ''
+    | '/login'
+    | '/register'
+    | '/about'
+    | '/calendar'
+    | '/time-estimate'
+    | '/today'
   id:
     | '__root__'
     | '/'
@@ -156,7 +208,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/about'
-    | '/_auth/user-dashboard'
+    | '/_auth/calendar'
+    | '/_auth/time-estimate'
+    | '/_auth/today'
   fileRoutesById: FileRoutesById
 }
 
@@ -201,7 +255,9 @@ export const routeTree = rootRoute
     "/_auth": {
       "filePath": "_auth.tsx",
       "children": [
-        "/_auth/user-dashboard"
+        "/_auth/calendar",
+        "/_auth/time-estimate",
+        "/_auth/today"
       ]
     },
     "/login": {
@@ -213,8 +269,16 @@ export const routeTree = rootRoute
     "/about": {
       "filePath": "about.lazy.tsx"
     },
-    "/_auth/user-dashboard": {
-      "filePath": "_auth.user-dashboard.tsx",
+    "/_auth/calendar": {
+      "filePath": "_auth.calendar.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/time-estimate": {
+      "filePath": "_auth.time-estimate.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/today": {
+      "filePath": "_auth.today.tsx",
       "parent": "/_auth"
     }
   }

@@ -11,6 +11,7 @@ import {
 } from "@/features/ui/form";
 import { Input } from "@/features/ui/input";
 import { Button } from "@/features/ui/button";
+import { useRegisterMutation } from "@/api/mutations/auth/useRegisterMutation";
 
 export default function RegisterForm() {
   const form = useForm<RegisterFormSchema>({
@@ -20,9 +21,10 @@ export default function RegisterForm() {
       password: "",
     },
   });
+  const mutation = useRegisterMutation();
 
   const onSubmit = (values: RegisterFormSchema) => {
-    console.log(values);
+    mutation.mutate(values);
   };
 
   return (
