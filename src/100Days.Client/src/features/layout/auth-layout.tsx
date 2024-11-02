@@ -60,7 +60,7 @@ export default function AuthLayout({ user, children }: AuthLayoutProps) {
           </div>
         </div>
       </div>
-      <div className="col-span-9 h-full rounded-lg border shadow p-4 flex flex-col items-center gap-4">
+      <div className="col-span-9 h-full rounded-lg shadow p-4 flex flex-col items-center gap-4">
         <AuthHeader />
         <div className="w-full h-full">{children}</div>
       </div>

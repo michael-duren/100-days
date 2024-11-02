@@ -33,7 +33,7 @@ export default function Header() {
                   Logout
                 </Button>
               </Link>
-              <Link to={"/user-dashboard"}>
+              <Link to={"/today"}>
                 <Button variant={"ghost"}>
                   <User size={20} />
                 </Button>
