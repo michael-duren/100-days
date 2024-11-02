@@ -3,7 +3,12 @@ var builder = DistributedApplication.CreateBuilder(args);
 var postgres = builder.AddPostgres("postgres");
 var postgresdb = postgres.AddDatabase("postgresdb", "100days");
 
-var authdb = builder.AddPostgres("auth").AddDatabase("authdb", "100days_auth");
+var username = builder.AddParameter("username", secret: true);
+var pwd = builder.AddParameter("password", secret: true);
+
+var authdb = builder
+    .AddPostgres("auth", port: 5433, userName: username, password: pwd)
+    .AddDatabase("authdb", "100days_auth");
 
 var authService = builder.AddProject<Projects.Auth_Api>("authapi").WithReference(authdb);
 
@@ -24,4 +29,3 @@ builder
     .PublishAsDockerFile();
 
 builder.Build().Run();
-

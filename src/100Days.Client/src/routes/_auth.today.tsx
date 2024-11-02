@@ -1,3 +1,4 @@
+import TodayForm from "@/features/today/today-form";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/today")({
@@ -6,8 +7,8 @@ export const Route = createFileRoute("/_auth/today")({
 
 function Today() {
   return (
-    <div>
-      <p>User stuff goes here</p>
+    <div className="h-full w-full">
+      <TodayForm />
     </div>
   );
 }

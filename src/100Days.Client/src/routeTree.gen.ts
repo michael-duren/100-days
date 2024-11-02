@@ -19,6 +19,8 @@ import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthTodayImport } from './routes/_auth.today'
 import { Route as AuthTimeEstimateImport } from './routes/_auth.time-estimate'
+import { Route as AuthSettingsImport } from './routes/_auth.settings'
+import { Route as AuthGoalImport } from './routes/_auth.goal'
 import { Route as AuthCalendarImport } from './routes/_auth.calendar'
 
 // Create Virtual Routes
@@ -59,6 +61,16 @@ const AuthTodayRoute = AuthTodayImport.update({
 
 const AuthTimeEstimateRoute = AuthTimeEstimateImport.update({
   path: '/time-estimate',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthSettingsRoute = AuthSettingsImport.update({
+  path: '/settings',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthGoalRoute = AuthGoalImport.update({
+  path: '/goal',
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -113,6 +125,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCalendarImport
       parentRoute: typeof AuthImport
     }
+    '/_auth/goal': {
+      id: '/_auth/goal'
+      path: '/goal'
+      fullPath: '/goal'
+      preLoaderRoute: typeof AuthGoalImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/settings': {
+      id: '/_auth/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthSettingsImport
+      parentRoute: typeof AuthImport
+    }
     '/_auth/time-estimate': {
       id: '/_auth/time-estimate'
       path: '/time-estimate'
@@ -134,12 +160,16 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteChildren {
   AuthCalendarRoute: typeof AuthCalendarRoute
+  AuthGoalRoute: typeof AuthGoalRoute
+  AuthSettingsRoute: typeof AuthSettingsRoute
   AuthTimeEstimateRoute: typeof AuthTimeEstimateRoute
   AuthTodayRoute: typeof AuthTodayRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthCalendarRoute: AuthCalendarRoute,
+  AuthGoalRoute: AuthGoalRoute,
+  AuthSettingsRoute: AuthSettingsRoute,
   AuthTimeEstimateRoute: AuthTimeEstimateRoute,
   AuthTodayRoute: AuthTodayRoute,
 }
@@ -153,6 +183,8 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
   '/calendar': typeof AuthCalendarRoute
+  '/goal': typeof AuthGoalRoute
+  '/settings': typeof AuthSettingsRoute
   '/time-estimate': typeof AuthTimeEstimateRoute
   '/today': typeof AuthTodayRoute
 }
@@ -164,6 +196,8 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
   '/calendar': typeof AuthCalendarRoute
+  '/goal': typeof AuthGoalRoute
+  '/settings': typeof AuthSettingsRoute
   '/time-estimate': typeof AuthTimeEstimateRoute
   '/today': typeof AuthTodayRoute
 }
@@ -176,6 +210,8 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
   '/_auth/calendar': typeof AuthCalendarRoute
+  '/_auth/goal': typeof AuthGoalRoute
+  '/_auth/settings': typeof AuthSettingsRoute
   '/_auth/time-estimate': typeof AuthTimeEstimateRoute
   '/_auth/today': typeof AuthTodayRoute
 }
@@ -189,6 +225,8 @@ export interface FileRouteTypes {
     | '/register'
     | '/about'
     | '/calendar'
+    | '/goal'
+    | '/settings'
     | '/time-estimate'
     | '/today'
   fileRoutesByTo: FileRoutesByTo
@@ -199,6 +237,8 @@ export interface FileRouteTypes {
     | '/register'
     | '/about'
     | '/calendar'
+    | '/goal'
+    | '/settings'
     | '/time-estimate'
     | '/today'
   id:
@@ -209,6 +249,8 @@ export interface FileRouteTypes {
     | '/register'
     | '/about'
     | '/_auth/calendar'
+    | '/_auth/goal'
+    | '/_auth/settings'
     | '/_auth/time-estimate'
     | '/_auth/today'
   fileRoutesById: FileRoutesById
@@ -256,6 +298,8 @@ export const routeTree = rootRoute
       "filePath": "_auth.tsx",
       "children": [
         "/_auth/calendar",
+        "/_auth/goal",
+        "/_auth/settings",
         "/_auth/time-estimate",
         "/_auth/today"
       ]
@@ -271,6 +315,14 @@ export const routeTree = rootRoute
     },
     "/_auth/calendar": {
       "filePath": "_auth.calendar.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/goal": {
+      "filePath": "_auth.goal.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/settings": {
+      "filePath": "_auth.settings.tsx",
       "parent": "/_auth"
     },
     "/_auth/time-estimate": {
