@@ -1,23 +1,6 @@
 import AuthLayout from "@/features/layout/auth-layout";
-import { Button } from "@/features/ui/button";
 import { useAuthStore } from "@/store/useAuthStore";
-import {
-  createFileRoute,
-  Link,
-  Outlet,
-  redirect,
-} from "@tanstack/react-router";
-import {
-  Calendar,
-  CheckCircleIcon,
-  Lightbulb,
-  ListTodo,
-  Mail,
-  Settings,
-  Timer,
-  TrophyIcon,
-  UserCircle,
-} from "lucide-react";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth")({
   beforeLoad: ({ context }) => {

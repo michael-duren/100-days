@@ -7,8 +7,13 @@ var username = builder.AddParameter("username", secret: true);
 var pwd = builder.AddParameter("password", secret: true);
 
 var authdb = builder
-    .AddPostgres("auth", port: 5433, userName: username, password: pwd)
-    .AddDatabase("authdb", "100days_auth");
+    .AddPostgres(
+        name: "auth",
+        port: 5433,
+        userName: username,
+        password: pwd
+    )
+    .AddDatabase(name: "authdb", databaseName: "100days_auth");
 
 var authService = builder.AddProject<Projects.Auth_Api>("authapi").WithReference(authdb);
 
