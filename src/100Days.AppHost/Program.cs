@@ -1,5 +1,10 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
+var secrets =
+    builder.ExecutionContext.IsPublishMode
+        ? builder.AddAzureKeyVault("secrets")
+        : builder.AddConnectionString("secrets");
+
 var username = builder.AddParameter("username", secret: true);
 var pwd = builder.AddParameter("password", secret: true);
 
