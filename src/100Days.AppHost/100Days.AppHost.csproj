@@ -17,7 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\100Days.Server\100Days.Server.csproj"/>
         <ProjectReference Include="..\Auth.Api\Auth.Api.csproj" />
         <ProjectReference Include="..\Auth.MigrationService\Auth.MigrationService.csproj" />
     </ItemGroup>
