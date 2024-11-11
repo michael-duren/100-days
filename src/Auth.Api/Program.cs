@@ -3,6 +3,7 @@ using Auth.Api;
 using Auth.Api.Extensions;
 using Auth.Api.Services;
 using Auth.Data;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -14,8 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.AddServiceDefaults();
+
 // add the public key for jwt validation
-string publicKey;
+string? publicKey;
 if (builder.Environment.IsDevelopment())
 {
     publicKey = await File.ReadAllTextAsync(
@@ -28,9 +31,12 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
-    // TODO: Add Azure Key Vault
-    publicKey = "";
+    // Add Azure Key Vault secret values to app configuration (must be the same name you gave the resource in the apphost)
+    builder.Configuration.AddAzureKeyVaultSecrets("secrets");
+    publicKey = builder.Configuration["public_key"];
 }
+
+ArgumentException.ThrowIfNullOrEmpty(publicKey, nameof(publicKey));
 
 using var rsa = RSA.Create();
 
