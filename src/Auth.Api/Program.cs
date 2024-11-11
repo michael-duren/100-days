@@ -3,7 +3,7 @@ using Auth.Api;
 using Auth.Api.Extensions;
 using Auth.Api.Services;
 using Auth.Data;
-using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -17,24 +17,9 @@ builder.Services.AddSwaggerGen();
 
 builder.AddServiceDefaults();
 
-// add the public key for jwt validation
-string? publicKey;
-if (builder.Environment.IsDevelopment())
-{
-    publicKey = await File.ReadAllTextAsync(
-        Path.Combine(
-            Environment.CurrentDirectory,
-            "Rsa",
-            "public_key.pem"
-        )
-    );
-}
-else
-{
-    // Add Azure Key Vault secret values to app configuration (must be the same name you gave the resource in the apphost)
-    builder.Configuration.AddAzureKeyVaultSecrets("secrets");
-    publicKey = builder.Configuration["public_key"];
-}
+builder.AddAzureKeyVaultSecrets();
+
+string? publicKey = builder.Configuration["public-key"];
 
 ArgumentException.ThrowIfNullOrEmpty(publicKey, nameof(publicKey));
 
@@ -42,12 +27,12 @@ using var rsa = RSA.Create();
 
 rsa.ImportFromPem(publicKey.ToCharArray());
 
-builder.Services.AddAuthentication(opts =>
-        {
-            opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }
-    )
+builder
+    .Services.AddAuthentication(opts =>
+    {
+        opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(opts =>
     {
         opts.Events = new JwtBearerEvents
@@ -61,7 +46,7 @@ builder.Services.AddAuthentication(opts =>
                 }
 
                 return Task.CompletedTask;
-            }
+            },
         };
         opts.TokenValidationParameters = new TokenValidationParameters
         {
@@ -69,7 +54,7 @@ builder.Services.AddAuthentication(opts =>
             ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new RsaSecurityKey(rsa)
+            IssuerSigningKey = new RsaSecurityKey(rsa),
         };
     });
 builder.Services.AddAuthorization();
@@ -77,10 +62,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IJwtCookieService, JwtCookieService>();
 
-builder
-    .Services.AddIdentityCore<AppUser>()
-    .AddEntityFrameworkStores<AuthContext>();
-// .AddApiEndpoints(); // add auth endpoints: login, register, etc.
+builder.Services.AddIdentityCore<AppUser>().AddEntityFrameworkStores<AuthContext>();
 
 builder.Services.Configure<IdentityOptions>(opts =>
 {
