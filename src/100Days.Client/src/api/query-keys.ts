@@ -5,4 +5,8 @@ export const queryKeys = {
     logout: ["auth", "logout"],
     me: ["auth", "me"],
   },
+  goals: {
+    all: ["goals", "all"],
+    details: (id: string) => ["goals", id],
+  },
 };

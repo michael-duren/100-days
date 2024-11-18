@@ -28,6 +28,13 @@ export default defineConfig({
         // rewrite: (path) => path.replace(/^\/api/, ""),
         secure: false,
       },
+      "/api/goal": {
+        target:
+          process.env.services__goalapi__https__0 ||
+          process.env.services__goalapi__http__0,
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

@@ -1,9 +1,21 @@
+using Goal.Api;
+using Goal.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.AddServiceDefaults();
+
+builder.AddAzureKeyVaultSecrets();
+builder.AddJwtAuthentication();
+builder.Services.AddAuthorization();
+
+builder.AddNpgsqlDbContext<GoalContext>("goaldb");
 
 var app = builder.Build();
 
@@ -12,33 +24,35 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    using IServiceScope scope = app.Services.CreateScope();
+    await using GoalContext context = scope.ServiceProvider.GetRequiredService<GoalContext>();
+    await context.Database.MigrateAsync();
 }
+
+app.AddGoalEndpoints();
+
+app.UseAuthentication();
+app.Use(async (context, next) =>
+{
+    if (context.User?.Identity?.IsAuthenticated ?? false)
+    {
+        foreach (var claim in context.User.Claims)
+        {
+            Console.WriteLine($"{claim.Type}: {claim.Value}");
+        }
+        // Console.WriteLine($"User is authenticated: {context.User.Identity.Name}");
+        // Console.WriteLine($"User id: {context.User.FindFirst("sub")?.Value}");
+    }
+    else
+    {
+        Console.WriteLine("User is not authenticated");
+    }
+
+    await next();
+});
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
-
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

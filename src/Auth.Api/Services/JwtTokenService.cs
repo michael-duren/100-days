@@ -52,9 +52,8 @@ public class JwtTokenService : IJwtTokenService
         // Create claims for JWT
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.Id),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(ClaimTypes.Name, user.UserName ?? user.Email ?? ""),
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Name, user.UserName ?? ""),
         };
 
         // Generate JWT

@@ -9,9 +9,8 @@
 
     <ItemGroup>
         <PackageReference Include="Aspire.Azure.Security.KeyVault" Version="8.2.2" />
-        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.2.1"/>
-        <PackageReference Include="HiNetCloud.Microsoft.IdentityModel.Tokens" Version="23.10.8.15"/>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10"/>
+        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.2.2"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.10"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.1"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
@@ -19,7 +18,6 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.1.2"/>
     </ItemGroup>
 
     <ItemGroup>

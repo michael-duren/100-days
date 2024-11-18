@@ -22,11 +22,28 @@ var authService = builder
     .WithReference(secrets)
     .WithReference(authdb);
 
+var goaldb = builder
+    .AddPostgres(
+        name: "goal",
+        port: 5434,
+        userName: username,
+        password: pwd
+    )
+    .AddDatabase(name: "goaldb", databaseName: "100days_goal");
+
+var goalService = builder
+    .AddProject<Projects.Goal_Api>("goalapi")
+    .WithReference(secrets)
+    .WithReference(goaldb);
+
+// apply migrations
 builder.AddProject<Projects.Auth_MigrationService>("auth-migration").WithReference(authdb);
+builder.AddProject<Projects.Goal_MigrationService>("goal-migration").WithReference(goaldb);
 
 builder
     .AddNpmApp("react", "../100days.client", "dev")
     .WithReference(authService)
+    .WithReference(goalService)
     .WithEnvironment("BROWSER", "none")
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
