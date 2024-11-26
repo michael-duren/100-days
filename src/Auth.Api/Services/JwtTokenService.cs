@@ -10,7 +10,7 @@ namespace Auth.Api.Services;
 
 public interface IJwtTokenService
 {
-    Task<string> GenerateJwtTokenAsync(AppUser user);
+    string GenerateJwtTokenAsync(AppUser user);
 }
 
 public class JwtTokenService : IJwtTokenService
@@ -30,23 +30,10 @@ public class JwtTokenService : IJwtTokenService
         _logger = logger;
     }
 
-    public async Task<string> GenerateJwtTokenAsync(AppUser user)
+    public string GenerateJwtTokenAsync(AppUser user)
     {
-        var isDevelopment =
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-        string privateKey;
-        if (isDevelopment)
-        {
-            _logger.LogInformation("Development environment, using local private key");
-            privateKey = await File.ReadAllTextAsync(
-                Path.Combine(Environment.CurrentDirectory, "Rsa", "private_key.pem")
-            );
-        }
-        else
-        {
-            // TODO: get from secret manager
-            privateKey = "";
-        }
+        string? privateKey = _configuration["private-key"];
+        ArgumentException.ThrowIfNullOrEmpty(privateKey, nameof(privateKey));
 
         if (string.IsNullOrEmpty(privateKey))
         {
@@ -65,9 +52,8 @@ public class JwtTokenService : IJwtTokenService
         // Create claims for JWT
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.Id),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(ClaimTypes.Name, user.UserName ?? user.Email ?? ""),
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Name, user.UserName ?? ""),
         };
 
         // Generate JWT
@@ -83,4 +69,3 @@ public class JwtTokenService : IJwtTokenService
         return tokenHandler.WriteToken(token);
     }
 }
-

@@ -1,7 +1,9 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-// var postgres = builder.AddPostgres("postgres");
-// var postgresdb = postgres.AddDatabase("postgresdb", "100days");
+var secrets =
+    builder.ExecutionContext.IsPublishMode
+        ? builder.AddAzureKeyVault(name: "secrets")
+        : builder.AddConnectionString("secrets");
 
 var username = builder.AddParameter("username", secret: true);
 var pwd = builder.AddParameter("password", secret: true);
@@ -15,19 +17,49 @@ var authdb = builder
     )
     .AddDatabase(name: "authdb", databaseName: "100days_auth");
 
-var authService = builder.AddProject<Projects.Auth_Api>("authapi").WithReference(authdb);
+var authService = builder
+    .AddProject<Projects.Auth_Api>("authapi")
+    .WithReference(secrets)
+    .WithReference(authdb);
 
+var goaldb = builder
+    .AddPostgres(
+        name: "goal",
+        port: 5434,
+        userName: username,
+        password: pwd
+    )
+    .AddDatabase(name: "goaldb", databaseName: "100days_goal");
+
+var goalService = builder
+    .AddProject<Projects.Goal_Api>("goalapi")
+    .WithReference(secrets)
+    .WithReference(goaldb);
+
+var entrydb = builder
+    .AddPostgres(
+        name: "entry",
+        port: 5435,
+        userName: username,
+        password: pwd
+    )
+    .AddDatabase(name: "entrydb", databaseName: "100days_entry");
+
+var entryService = builder
+    .AddProject<Projects.Entry_Api>("entryapi")
+    .WithReference(secrets)
+    .WithReference(goaldb);
+
+// apply migrations
 builder.AddProject<Projects.Auth_MigrationService>("auth-migration").WithReference(authdb);
-
-// var api = builder
-//     .AddProject<Projects._100Days_Server>("api")
-//     .WithReference(postgresdb)
-//     .WithExternalHttpEndpoints();
+builder.AddProject<Projects.Goal_MigrationService>("goal-migration").WithReference(goaldb);
+builder.AddProject<Projects.Entry_MigrationService>("entry-migration").WithReference(entrydb);
 
 builder
     .AddNpmApp("react", "../100days.client", "dev")
-    // .WithReference(api)
     .WithReference(authService)
+    .WithReference(goalService)
+    .WithReference(entryService)
     .WithEnvironment("BROWSER", "none")
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()

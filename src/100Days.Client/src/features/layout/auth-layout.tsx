@@ -8,6 +8,8 @@ import {
   UserCircle,
 } from "lucide-react";
 import AuthHeader from "./auth-header";
+import { useGetAllGoalsQuery } from "@/api/queries/goal/useGetGoals";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface AuthLayoutProps {
   user: UserDto | null;
@@ -15,6 +17,8 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ user, children }: AuthLayoutProps) {
+  const { data: goals, isSuccess } = useGetAllGoalsQuery(user);
+
   return (
     <div className="flex flex-col md:grid h-full md:grid-cols-12 p-4">
       <div className="hidden md:flex col-span-3 h-full rounded-lg shadow p-8 flex-col items-center">

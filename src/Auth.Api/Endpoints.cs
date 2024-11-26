@@ -103,7 +103,7 @@ public static class Endpoints
             return Results.Json(new { message = "Invalid password" }, statusCode: 401);
         }
 
-        string token = await jwtTokenService.GenerateJwtTokenAsync(user);
+        string token = jwtTokenService.GenerateJwtTokenAsync(user);
         jwtCookieService.SetJwtCookie(httpContext, token);
         UserDto userDto =
             new()
@@ -138,7 +138,7 @@ public static class Endpoints
             return Results.BadRequest(result.Errors.ToList().Select(x => x.Description));
         }
 
-        string token = await jwtTokenService.GenerateJwtTokenAsync(user);
+        string token = jwtTokenService.GenerateJwtTokenAsync(user);
         jwtCookieService.SetJwtCookie(httpContext, token);
 
         var userDto = new UserDto

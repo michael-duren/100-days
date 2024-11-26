@@ -1,11 +1,8 @@
-using System.Security.Cryptography;
 using Auth.Api;
 using Auth.Api.Extensions;
 using Auth.Api.Services;
 using Auth.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,67 +11,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// add the public key for jwt validation
-string publicKey;
-if (builder.Environment.IsDevelopment())
-{
-    publicKey = await File.ReadAllTextAsync(
-        Path.Combine(
-            Environment.CurrentDirectory,
-            "Rsa",
-            "public_key.pem"
-        )
-    );
-}
-else
-{
-    // TODO: Add Azure Key Vault
-    publicKey = "";
-}
+builder.AddServiceDefaults();
 
-using var rsa = RSA.Create();
-
-rsa.ImportFromPem(publicKey.ToCharArray());
-
-builder.Services.AddAuthentication(opts =>
-        {
-            opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }
-    )
-    .AddJwtBearer(opts =>
-    {
-        opts.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                var token = context.Request.Cookies["jwt"];
-                if (!string.IsNullOrEmpty(token))
-                {
-                    context.Token = token;
-                }
-
-                return Task.CompletedTask;
-            }
-        };
-        opts.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new RsaSecurityKey(rsa)
-        };
-    });
+builder.AddAzureKeyVaultSecrets();
+builder.AddJwtAuthentication();
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IJwtCookieService, JwtCookieService>();
 
-builder
-    .Services.AddIdentityCore<AppUser>()
-    .AddEntityFrameworkStores<AuthContext>();
-// .AddApiEndpoints(); // add auth endpoints: login, register, etc.
+builder.Services.AddIdentityCore<AppUser>().AddEntityFrameworkStores<AuthContext>();
 
 builder.Services.Configure<IdentityOptions>(opts =>
 {
@@ -103,9 +49,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// app.MapIdentityApi<AppUser>();
 app.AddAuthEndpoints();
-app.MapGet("/api/test", () => "SECURED!").RequireAuthorization();
 
 app.UseAuthentication();
 app.UseAuthorization();

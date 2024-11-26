@@ -3,6 +3,7 @@ import { routeTree } from "@/routeTree.gen.ts";
 import { useAuthStore } from "@/store/useAuthStore.ts";
 import { useEffect } from "react";
 import api from "@/api/agent.ts";
+import { Toaster } from "react-hot-toast";
 
 function InnerApp() {
   const auth = useAuthStore();
@@ -37,5 +38,10 @@ const router = createRouter({
 });
 
 export default function App() {
-  return <InnerApp />;
+  return (
+    <>
+      <Toaster />
+      <InnerApp />
+    </>
+  );
 }
