@@ -19,6 +19,8 @@
     <ItemGroup>
         <ProjectReference Include="..\Auth.Api\Auth.Api.csproj" />
         <ProjectReference Include="..\Auth.MigrationService\Auth.MigrationService.csproj" />
+        <ProjectReference Include="..\Entry.Api\Entry.Api.csproj" />
+        <ProjectReference Include="..\Entry.MigrationService\Entry.MigrationService.csproj" />
         <ProjectReference Include="..\Goal.Api\Goal.Api.csproj" />
         <ProjectReference Include="..\Goal.MigrationService\Goal.MigrationService.csproj" />
     </ItemGroup>

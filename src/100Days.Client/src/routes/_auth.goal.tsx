@@ -1,6 +1,9 @@
 import { useGetAllGoalsQuery } from "@/api/queries/goal/useGetGoals";
+import CurrentGoal from "@/features/goals/current-goal";
+import NewGoalForm from "@/features/goals/new-goal-form";
 import { useAuthStore } from "@/store/useAuthStore";
 import { createFileRoute } from "@tanstack/react-router";
+import { Fragment } from "react/jsx-runtime";
 
 export const Route = createFileRoute("/_auth/goal")({
   component: AuthGoal,
@@ -16,15 +19,18 @@ function AuthGoal() {
 
   return (
     <div>
-      <h1>Auth Goal</h1>
-      {goals.data.length === 0 ? (
-        goals.data.map((g) => (
-          <div>
-            <p>{g.title}</p>
-          </div>
-        ))
+      {goals.data.length > 0 ? (
+        goals.data.map((g) => {
+          if (!g.isCompleted) {
+            return (
+              <Fragment key={g.id}>
+                <CurrentGoal goal={g} />
+              </Fragment>
+            );
+          }
+        })
       ) : (
-        <div>No goals</div>
+        <NewGoalForm />
       )}
     </div>
   );

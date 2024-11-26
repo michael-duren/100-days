@@ -33,24 +33,6 @@ if (app.Environment.IsDevelopment())
 app.AddGoalEndpoints();
 
 app.UseAuthentication();
-app.Use(async (context, next) =>
-{
-    if (context.User?.Identity?.IsAuthenticated ?? false)
-    {
-        foreach (var claim in context.User.Claims)
-        {
-            Console.WriteLine($"{claim.Type}: {claim.Value}");
-        }
-        // Console.WriteLine($"User is authenticated: {context.User.Identity.Name}");
-        // Console.WriteLine($"User id: {context.User.FindFirst("sub")?.Value}");
-    }
-    else
-    {
-        Console.WriteLine("User is not authenticated");
-    }
-
-    await next();
-});
 app.UseAuthorization();
 
 app.UseHttpsRedirection();

@@ -5,9 +5,6 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import { defineConfig } from "vite";
 import plugin from "@vitejs/plugin-react";
 
-console.log(process.env.services__authapi__https__0);
-console.log(process.env.services__authapi__http__0);
-//
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [plugin(), svgr(), TanStackRouterVite()],
@@ -32,6 +29,13 @@ export default defineConfig({
         target:
           process.env.services__goalapi__https__0 ||
           process.env.services__goalapi__http__0,
+        changeOrigin: true,
+        secure: false,
+      },
+      "/api/entry": {
+        target:
+          process.env.services__entryapi__https__0 ||
+          process.env.services__entryapi__http__0,
         changeOrigin: true,
         secure: false,
       },

@@ -1,5 +1,6 @@
 import type { LoginFormRequest } from "@/features/auth/login/login-schema";
 import type { RegisterFormRequest } from "@/features/auth/register/register-schema";
+import { NewGoalFormRequest } from "@/features/goals/new-goal-form-schema";
 import { GoalDto } from "@/types/dtos/GoalDto";
 import { UserDto } from "@/types/dtos/UserDto";
 import axios from "axios";
@@ -25,7 +26,8 @@ const Auth = {
 const Goals = {
   list: () => requests.get<GoalDto[]>("/api/goals/all"),
   details: (id: string) => requests.get<GoalDto>(`/api/goals/${id}`),
-  create: (goal: GoalDto) => requests.post<GoalDto>("/api/goals", goal),
+  create: (goal: NewGoalFormRequest) =>
+    requests.post<GoalDto>("/api/goals/create", goal),
   update: (goal: GoalDto) =>
     requests.put<GoalDto>(`/api/goals/${goal.id}`, goal),
   delete: (id: string) => requests.delete(`/api/goals/${id}`),

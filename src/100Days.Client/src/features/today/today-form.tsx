@@ -31,7 +31,7 @@ export default function TodayForm() {
   return (
     <Form {...form}>
       <form className="h-full w-full">
-        <div className="flex flex-col px-24 w-full h-full gap-4 justify-center">
+        <div className="flex flex-col px-24 w-full h-full gap-4 mt-8">
           <h2 className="text-2xl font-bold">What did you do today?</h2>
           <FormField
             control={form.control}
