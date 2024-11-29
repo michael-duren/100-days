@@ -1,5 +1,6 @@
 import { EntryDto } from "@/types/dtos/EntryDto";
 import { ColumnDef } from "@tanstack/react-table";
+import dayjs from "dayjs";
 
 export const columns: ColumnDef<EntryDto>[] = [
   {
@@ -18,5 +19,10 @@ export const columns: ColumnDef<EntryDto>[] = [
   {
     accessorKey: "created",
     header: "Date",
+    cell: ({ cell }) => {
+      const date = cell.getValue() as string;
+      const formattedDate = dayjs(date).format("ddd MMM D, YYYY");
+      return <span>{formattedDate}</span>;
+    },
   },
 ];
