@@ -48,7 +48,7 @@ var entrydb = builder
 var entryService = builder
     .AddProject<Projects.Entry_Api>("entryapi")
     .WithReference(secrets)
-    .WithReference(goaldb);
+    .WithReference(entrydb);
 
 // apply migrations
 builder.AddProject<Projects.Auth_MigrationService>("auth-migration").WithReference(authdb);

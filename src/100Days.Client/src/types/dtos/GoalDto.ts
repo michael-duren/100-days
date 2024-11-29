@@ -1,5 +1,5 @@
 export type GoalDto = {
-  id: string;
+  goalId: number;
   title: string;
   description: string;
   why: string;

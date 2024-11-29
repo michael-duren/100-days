@@ -14,7 +14,7 @@ builder.AddAzureKeyVaultSecrets();
 builder.AddJwtAuthentication();
 builder.Services.AddAuthorization();
 
-builder.AddNpgsqlDbContext<EntryContext>("goaldb");
+builder.AddNpgsqlDbContext<EntryContext>("entrydb");
 
 var app = builder.Build();
 

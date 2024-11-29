@@ -7,6 +7,12 @@ export const queryKeys = {
   },
   goals: {
     all: ["goals", "all"],
+    active: ["goals", "active"],
     details: (id: string) => ["goals", id],
+  },
+  entries: {
+    all: ["entries", "all"],
+    byGoal: (goalId: number) => ["entries", "goals", goalId],
+    details: (id: string) => ["entries", id],
   },
 };

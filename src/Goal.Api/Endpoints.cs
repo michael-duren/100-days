@@ -18,6 +18,12 @@ public static class Endpoints
             .RequireAuthorization();
 
         goalEndpoints
+            .MapGet("/active", GetActiveGoal)
+            .Produces<GoalDto>()
+            .Produces(401)
+            .RequireAuthorization();
+
+        goalEndpoints
             .MapGet("/{id}", GetGoalById)
             .Produces<GoalDto>()
             .Produces(401)
@@ -48,6 +54,33 @@ public static class Endpoints
             .RequireAuthorization();
     }
 
+    private static async Task<IResult> GetActiveGoal(
+        HttpContext context,
+        GoalContext dbContext,
+        CancellationToken cancellationToken
+    )
+    {
+        var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId is null)
+        {
+            return Results.Unauthorized();
+        }
+
+        var goal = await dbContext.Goals
+            .Where(g => g.UserId == userId && !g.IsComplete)
+            .Select(g => new GoalDto
+            {
+                GoalId = g.GoalId,
+                Title = g.Title,
+                Description = g.Description,
+                Why = g.Why,
+                IsComplete = g.IsComplete
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return Results.Ok(goal);
+    }
+
     private static async Task<IResult> GetGoalById(
         HttpContext context,
         GoalContext dbContext,
@@ -56,7 +89,7 @@ public static class Endpoints
     )
     {
         var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-       if (userId is null)
+        if (userId is null)
         {
             return Results.Unauthorized();
         }

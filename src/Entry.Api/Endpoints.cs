@@ -9,10 +9,16 @@ public static class Endpoints
 {
     public static void AddEntryEndpoints(this WebApplication app)
     {
-        var entryEndpoints = app.MapGroup("/api/entrys");
+        var entryEndpoints = app.MapGroup("/api/entries");
 
         entryEndpoints
             .MapGet("/all", GetAllEntries)
+            .Produces<EntryDto[]>()
+            .Produces(401)
+            .RequireAuthorization();
+
+        entryEndpoints
+            .MapGet("/goal/{goalId}", GetGoalEntries)
             .Produces<EntryDto[]>()
             .Produces(401)
             .RequireAuthorization();
@@ -46,6 +52,27 @@ public static class Endpoints
             .Produces(401)
             .Produces(404)
             .RequireAuthorization();
+    }
+
+    private static async Task<IResult> GetGoalEntries(
+        HttpContext context,
+        EntryContext dbContext,
+        int goalId,
+        CancellationToken cancellationToken
+    )
+    {
+        var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId is null)
+        {
+            return Results.Unauthorized();
+        }
+
+        var entries = await dbContext
+            .Entries
+            .Where(e => e.GoalId == goalId && e.UserId == userId)
+            .ToListAsync(cancellationToken);
+
+        return Results.Ok(entries);
     }
 
     private static async Task<IResult> GetEntryById(
@@ -150,7 +177,7 @@ public static class Endpoints
 
         var activeEntry = await dbContext
             .Entries
-            .Where(c => c.Created.Date == DateTime.Today && c.UserId == userId)
+            .Where(c => c.Created.Date == DateTime.UtcNow.Date && c.UserId == userId)
             .AnyAsync(cancellationToken);
 
         if (activeEntry)
@@ -164,8 +191,7 @@ public static class Endpoints
             GoalId = entryDto.GoalId,
             Title = entryDto.Title,
             Description = entryDto.Description,
-            Created = DateTime.Now,
-
+            Created = DateTime.UtcNow.Date,
         };
         var createdEntry = await dbContext.Entries.AddAsync(entry, cancellationToken);
         var result = await dbContext.SaveChangesAsync(cancellationToken) > 0;
@@ -199,7 +225,6 @@ public static class Endpoints
                 Description = g.Description,
                 Created = g.Created,
                 GoalId = g.GoalId,
-
             })
             .ToArrayAsync(cancellationToken);
         logger.LogInformation("Retrieved {Count} entrys for user {UserId}", entrys.Length, userId);

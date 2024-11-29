@@ -46,7 +46,7 @@ public static class Endpoints
     private static IResult GetCurrentUser(
         HttpContext httpContext,
         [FromServices] AuthContext context,
-        [FromServices] JwtCookieService jwtCookieService
+        [FromServices] IJwtCookieService jwtCookieService
     )
     {
         if (httpContext.User.Identity is not { IsAuthenticated: true })

@@ -32,7 +32,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      "/api/entry": {
+      "/api/entries": {
         target:
           process.env.services__entryapi__https__0 ||
           process.env.services__entryapi__http__0,
