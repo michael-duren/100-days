@@ -23,7 +23,7 @@ function AuthGoal() {
         goals.data.map((g) => {
           if (!g.isCompleted) {
             return (
-              <Fragment key={g.id}>
+              <Fragment key={g.goalId}>
                 <CurrentGoal goal={g} />
               </Fragment>
             );

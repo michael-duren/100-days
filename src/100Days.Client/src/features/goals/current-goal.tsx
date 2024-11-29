@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { BellRing, Check, Goal } from "lucide-react";
+import { Check, Goal } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface CurrentGoalProps {
@@ -61,35 +61,4 @@ export default function CurrentGoal({ goal: g }: CurrentGoalProps) {
       </Card>
     </div>
   );
-}
-
-{
-  /* <div className="flex flex-col px-24 w-full h-full gap-4 mt-8" key={g.id}> */
-}
-{
-  /*   <h1 className="text-2xl font-bold">Current Goal</h1> */
-}
-{
-  /*   <div className="flex gap-2 items-center"> */
-}
-{
-  /*     <p className="font-semibold text-xl">Title</p> */
-}
-{
-  /*     <p>{g.title}</p> */
-}
-{
-  /*   </div> */
-}
-{
-  /*   <div></div> */
-}
-{
-  /*   <p>{g.description}</p> */
-}
-{
-  /*   <p>{g.why}</p> */
-}
-{
-  /* </div> */
 }
