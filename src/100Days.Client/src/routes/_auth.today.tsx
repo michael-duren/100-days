@@ -1,12 +1,12 @@
 import { useGetEntriesByGoalQuery } from "@/api/queries/entries/useGetEntriesByGoalQuery";
 import { useGetActiveGoalQuery } from "@/api/queries/goal/useGetActiveGoal";
+import NoGoal from "@/features/shared/no-goal";
 import TodayForm from "@/features/today/today-form";
-import { Button } from "@/features/ui/button";
 import { isSameDay } from "@/lib/date";
 import { useAuthStore } from "@/store/useAuthStore";
 import { EntryDto } from "@/types/dtos/EntryDto";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Frown, PartyPopper, Sparkle } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { PartyPopper } from "lucide-react";
 import { useMemo } from "react";
 
 export const Route = createFileRoute("/_auth/today")({
@@ -15,7 +15,6 @@ export const Route = createFileRoute("/_auth/today")({
 
 function Today() {
   const { user } = useAuthStore();
-  const navigate = useNavigate();
   const {
     data: activeGoal,
     isSuccess: isGoalSuccess,
@@ -50,15 +49,7 @@ function Today() {
   return (
     <div className="h-full w-full">
       {!activeGoal.data ? (
-        <div className="flex flex-col items-center px-24 w-full h-full gap-4 mt-8">
-          <Frown size={64} />
-          <div className="flex flex-col gap-2">
-            <p>Looks like you don't have an active goal...</p>
-            <Button onClick={() => navigate({ to: "/goal" })}>
-              Create a Goal
-            </Button>
-          </div>
-        </div>
+        <NoGoal />
       ) : (
         <>
           {todaysEntry ? (
