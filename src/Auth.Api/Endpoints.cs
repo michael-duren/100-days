@@ -1,4 +1,8 @@
 using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using _100Days.Events;
+using _100Days.Events.Users;
 using Auth.Api.Models;
 using Auth.Api.Services;
 using Auth.Data;
@@ -121,7 +125,8 @@ public static class Endpoints
         [FromBody] RegisterRequest request,
         [FromServices] UserManager<AppUser> userManager,
         [FromServices] IJwtTokenService jwtTokenService,
-        [FromServices] IJwtCookieService jwtCookieService
+        [FromServices] IJwtCookieService jwtCookieService,
+        [FromServices] RabbitMQ.Client.IConnection connection
     )
     {
         AppUser? existingUser = await userManager.FindByEmailAsync(request.Email);
@@ -137,6 +142,34 @@ public static class Endpoints
         {
             return Results.BadRequest(result.Errors.ToList().Select(x => x.Description));
         }
+
+        var channel = connection.CreateModel();
+
+        // declare a queue
+        channel.QueueDeclare(
+            queue: QueueNames.UserEvents,
+            durable: false, // if true, the queue will survive broker restarts
+            exclusive: false, // if true, connection is exclusive to the queue
+            autoDelete: false, // if true, the queue will be deleted when the number of consumers drops to zero
+            arguments: null
+        );
+        var body = new MessageBody<UserSignedUpEvent>
+        {
+            EventType = EventTypes.UserRegistered,
+            Data = new UserSignedUpEvent
+            {
+                Email = user.Email
+            },
+            DateTime = DateTime.UtcNow
+        };
+        var encodedBody = JsonSerializer.SerializeToUtf8Bytes(body);
+        channel.BasicPublish(
+            exchange: ExchangeNames.DefaultExchange,
+            mandatory: false,
+            routingKey: QueueNames.UserEvents,
+            basicProperties: null,
+            body: encodedBody
+        );
 
         string token = jwtTokenService.GenerateJwtTokenAsync(user);
         jwtCookieService.SetJwtCookie(httpContext, token);
