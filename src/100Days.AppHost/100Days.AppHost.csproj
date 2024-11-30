@@ -14,9 +14,11 @@
         <PackageReference Include="Aspire.Hosting.Azure.KeyVault" Version="8.2.2" />
         <PackageReference Include="Aspire.Hosting.NodeJs" Version="8.2.1"/>
         <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.2.1" />
+        <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="8.2.2" />
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\User.Email\User.Email.csproj" />
         <ProjectReference Include="..\Auth.Api\Auth.Api.csproj" />
         <ProjectReference Include="..\Auth.MigrationService\Auth.MigrationService.csproj" />
         <ProjectReference Include="..\Entry.Api\Entry.Api.csproj" />

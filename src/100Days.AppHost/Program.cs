@@ -8,6 +8,13 @@ var secrets =
 var username = builder.AddParameter("username", secret: true);
 var pwd = builder.AddParameter("password", secret: true);
 
+var messaging = builder
+    .AddRabbitMQ("messaging")
+    .WithManagementPlugin();
+
+builder.AddProject<Projects.User_Email>("consumers")
+    .WithReference(messaging);
+
 var authdb = builder
     .AddPostgres(
         name: "auth",
@@ -19,6 +26,7 @@ var authdb = builder
 
 var authService = builder
     .AddProject<Projects.Auth_Api>("authapi")
+    .WithReference(messaging)
     .WithReference(secrets)
     .WithReference(authdb);
 
@@ -33,6 +41,7 @@ var goaldb = builder
 
 var goalService = builder
     .AddProject<Projects.Goal_Api>("goalapi")
+    .WithReference(messaging)
     .WithReference(secrets)
     .WithReference(goaldb);
 
@@ -47,6 +56,7 @@ var entrydb = builder
 
 var entryService = builder
     .AddProject<Projects.Entry_Api>("entryapi")
+    .WithReference(messaging)
     .WithReference(secrets)
     .WithReference(entrydb);
 
